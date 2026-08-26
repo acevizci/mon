@@ -35,12 +35,36 @@
     <div><div class="kicker">İnnova • ACEP Saha Operasyon Yönetimi</div><div class="title">Saha Kurulum, Üretim ve Devreye Alma Dashboard</div><div class="subtitle">Kaynak: Saha Durum ve Operasyon Detay Tablosu • Üst yönetim görünümü</div></div>
     <div class="header-actions">
       <span class="upload-status" id="uploadStatus"><i class="dot-status"></i><span id="uploadStatusText">Paylaşılan veri yükleniyor…</span></span>
-      <button class="upload-btn" id="uploadBtn" title="Sadece bu tarayıcıda önizleme; herkese yayınlamaz">⇪ Yerel Önizle (.xlsx)</button>
+      <button class="upload-btn" id="uploadBtn" title="Sadece bu tarayıcıda önizleme; herkese yayınlamaz" style="background:#8391a4">⇪ Yerel Önizle (.xlsx)</button>
+      <button class="upload-btn" id="pushBtn" title="Excel'i doğrudan GitHub'a gönderir, Action otomatik tetiklenir">⇧ Excel Yükle ve Repoya Gönder</button>
+      <button class="upload-btn" id="forgetTokenBtn" style="background:#dd5a5a;display:none" title="Bu cihazda kayıtlı GitHub token'ını sil">✕ Token'ı Unut</button>
       <button class="upload-btn" id="resetBtn" style="background:#8391a4;display:none">↺ Paylaşılan Veriye Dön</button>
       <input type="file" id="fileInput" accept=".xlsx,.xls" style="display:none" />
+      <input type="file" id="pushFileInput" accept=".xlsx,.xls" style="display:none" />
       <div class="date" id="dateBadge">23 Ağustos 2026</div>
     </div>
   </header>
+
+  <div id="tokenModalOverlay" style="display:none;position:fixed;inset:0;background:rgba(16,36,62,.45);z-index:50;align-items:center;justify-content:center">
+    <div style="background:#fff;border-radius:16px;padding:26px 28px;max-width:440px;width:92%;box-shadow:0 20px 50px rgba(16,36,62,.25)">
+      <div style="font-size:16px;font-weight:850;margin-bottom:6px">GitHub Erişim Anahtarı (Token)</div>
+      <div style="font-size:12px;color:#718096;line-height:1.5;margin-bottom:14px">
+        Excel'i repoya yazabilmek için bir <b>Personal Access Token</b> gerekiyor.
+        Bu token, kaydettikten sonra <b>bu cihazda/tarayıcıda kalıcı olarak</b> saklanır
+        (sayfa koduna gömülmez, sunucuya gönderilmez) — bir daha girmene gerek kalmaz.
+        Bu yüzden token'ı yalnızca kendi cihazında gir; ortak/paylaşımlı bir bilgisayarda
+        girersen o cihazı kullanan herkes senin adına repoya yazabilir. İstediğin zaman
+        "✕ Token'ı Unut" ile silebilirsin. Token oluştururken sadece bu repoya
+        <b>Contents: Read and write</b> izni ver, başka izin gerekmez.
+        <a href="https://github.com/settings/tokens?type=beta" target="_blank" rel="noopener" style="color:var(--blue);font-weight:700">Fine-grained token oluştur →</a>
+      </div>
+      <input type="password" id="tokenInput" placeholder="github_pat_..." style="width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;font-size:13px;box-sizing:border-box;margin-bottom:12px" />
+      <div style="display:flex;gap:8px;justify-content:flex-end">
+        <button id="tokenCancelBtn" style="font-size:12px;font-weight:700;color:#718096;background:#f1f4f8;border:none;padding:9px 14px;border-radius:999px;cursor:pointer">Vazgeç</button>
+        <button id="tokenSaveBtn" style="font-size:12px;font-weight:800;color:#fff;background:var(--blue);border:none;padding:9px 16px;border-radius:999px;cursor:pointer">Kaydet ve Devam Et</button>
+      </div>
+    </div>
+  </div>
 
   <section class="kpis">
     <div class="card kpi"><div class="klabel">TOPLAM CİK HEDEFİ</div><div class="kvalue" id="kpiHedef">94</div><div class="ksub">Program kapsamı</div></div>
@@ -374,6 +398,195 @@ fileInput.addEventListener('change', (e)=>{
 
 // Sayfa açıldığında önce paylaşılan (repo'daki) veriyi çek
 loadSharedData();
+
+/* ================== GitHub'a doğrudan push etme ================== */
+
+// Repo ayarları — repon farklıysa burayı güncelle
+const GH_OWNER = 'acevizci';
+const GH_REPO = 'mon';
+const GH_BRANCH = 'main';
+const GH_XLSX_PATH = 'saha_durum_operasyon_tablosu.xlsx';
+const GH_TOKEN_STORAGE_KEY = 'gh_push_token_local';
+
+const pushBtn = document.getElementById('pushBtn');
+const pushFileInput = document.getElementById('pushFileInput');
+const tokenModalOverlay = document.getElementById('tokenModalOverlay');
+const tokenInput = document.getElementById('tokenInput');
+const tokenSaveBtn = document.getElementById('tokenSaveBtn');
+const tokenCancelBtn = document.getElementById('tokenCancelBtn');
+const forgetTokenBtn = document.getElementById('forgetTokenBtn');
+
+function getSessionToken(){
+  try{ return localStorage.getItem(GH_TOKEN_STORAGE_KEY); }catch(e){ return null; }
+}
+function setSessionToken(t){
+  try{ localStorage.setItem(GH_TOKEN_STORAGE_KEY, t); }catch(e){}
+}
+function clearSessionToken(){
+  try{ localStorage.removeItem(GH_TOKEN_STORAGE_KEY); }catch(e){}
+}
+
+function updateForgetTokenBtnVisibility(){
+  if(!forgetTokenBtn) return;
+  forgetTokenBtn.style.display = getSessionToken() ? 'inline-block' : 'none';
+}
+updateForgetTokenBtnVisibility();
+
+if(forgetTokenBtn){
+  forgetTokenBtn.addEventListener('click', ()=>{
+    clearSessionToken();
+    updateForgetTokenBtnVisibility();
+    setStatus('', 'Bu cihazdaki kayıtlı token silindi.');
+  });
+}
+
+function arrayBufferToBase64(buffer){
+  let binary = '';
+  const bytes = new Uint8Array(buffer);
+  const chunkSize = 0x8000;
+  for(let i=0;i<bytes.length;i+=chunkSize){
+    binary += String.fromCharCode.apply(null, bytes.subarray(i, i+chunkSize));
+  }
+  return btoa(binary);
+}
+
+async function githubGetFileSha(token){
+  const url = `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${encodeURIComponent(GH_XLSX_PATH)}?ref=${GH_BRANCH}`;
+  const res = await fetch(url, {headers:{
+    Authorization: `Bearer ${token}`,
+    Accept: 'application/vnd.github+json'
+  }});
+  if(res.status === 404) return null;
+  if(res.status === 401 || res.status === 403) throw new Error('Token geçersiz veya yetkisiz (401/403). Token\'ın bu repoya "Contents: Read and write" izni olduğundan emin ol.');
+  if(!res.ok) throw new Error('Dosya bilgisi alınamadı: HTTP ' + res.status);
+  const json = await res.json();
+  return json.sha;
+}
+
+async function githubPushFile(token, arrayBuffer, fileName){
+  const sha = await githubGetFileSha(token);
+  const contentB64 = arrayBufferToBase64(arrayBuffer);
+  const url = `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${encodeURIComponent(GH_XLSX_PATH)}`;
+  const body = {
+    message: `chore: Excel güncelle (${fileName}) — dashboard üzerinden gönderildi`,
+    content: contentB64,
+    branch: GH_BRANCH
+  };
+  if(sha) body.sha = sha;
+  const res = await fetch(url, {
+    method: 'PUT',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      Accept: 'application/vnd.github+json',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(body)
+  });
+  if(res.status === 401 || res.status === 403){
+    throw new Error('Token geçersiz veya yetkisiz (401/403). Token\'ın bu repoya "Contents: Read and write" izni olduğundan emin ol.');
+  }
+  if(!res.ok){
+    let msg = '';
+    try{ const j = await res.json(); msg = j.message || ''; }catch(e){}
+    throw new Error(`Push başarısız: HTTP ${res.status} ${msg}`);
+  }
+  return res.json();
+}
+
+// Push sonrası: Action'ın data/dashboard-data.json'ı güncellemesini birkaç kez deneyerek bekle
+async function pollForUpdatedData(previousGeneratedAt, maxTries, intervalMs){
+  for(let i=0;i<maxTries;i++){
+    await new Promise(r=>setTimeout(r, intervalMs));
+    try{
+      const res = await fetch(SHARED_DATA_URL + '?t=' + Date.now(), {cache:'no-store'});
+      if(res.ok){
+        const json = await res.json();
+        if(json.generatedAt && json.generatedAt !== previousGeneratedAt){
+          sharedData = json;
+          render(json);
+          const when = new Date(json.generatedAt).toLocaleString('tr-TR');
+          setStatus('ok', `Push tamamlandı, veri güncellendi — ${json.sourceFile || 'excel'} (${when})`);
+          resetBtn.style.display = 'none';
+          return true;
+        }
+      }
+    }catch(e){ /* sessizce devam, tekrar dene */ }
+  }
+  setStatus('', 'Dosya repoya gönderildi. GitHub Actions henüz veriyi güncellemedi — birkaç dakika sonra sayfayı yenile veya Actions sekmesinden kontrol et.');
+  return false;
+}
+
+pushBtn.addEventListener('click', ()=>{
+  const existing = getSessionToken();
+  if(existing){
+    pushFileInput.click();
+  }else{
+    tokenInput.value = '';
+    tokenModalOverlay.style.display = 'flex';
+    setTimeout(()=>tokenInput.focus(), 50);
+  }
+});
+
+tokenCancelBtn.addEventListener('click', ()=>{
+  tokenModalOverlay.style.display = 'none';
+});
+
+tokenSaveBtn.addEventListener('click', ()=>{
+  const t = tokenInput.value.trim();
+  if(!t){ tokenInput.focus(); return; }
+  setSessionToken(t);
+  updateForgetTokenBtnVisibility();
+  tokenModalOverlay.style.display = 'none';
+  pushFileInput.click();
+});
+
+tokenInput.addEventListener('keydown', (e)=>{
+  if(e.key === 'Enter') tokenSaveBtn.click();
+});
+
+pushFileInput.addEventListener('change', async (e)=>{
+  const file = e.target.files[0];
+  e.target.value = ''; // aynı dosyayı tekrar seçebilmek için sıfırla
+  if(!file) return;
+
+  const token = getSessionToken();
+  if(!token){
+    setStatus('err', 'Token bulunamadı, tekrar dene.');
+    return;
+  }
+
+  setStatus('', 'Okunuyor: ' + file.name);
+  const reader = new FileReader();
+  reader.onload = async (ev)=>{
+    try{
+      const arrayBuffer = ev.target.result;
+
+      // Önce yerel önizleme göster
+      const wb = XLSX.read(new Uint8Array(arrayBuffer), {type:'array'});
+      const parsed = parseWorkbook(wb);
+      render(parsed);
+      setStatus('', `Repoya gönderiliyor: ${file.name} …`);
+
+      const previousGeneratedAt = sharedData ? sharedData.generatedAt : null;
+      await githubPushFile(token, arrayBuffer, file.name);
+
+      setStatus('ok', `Push edildi: ${file.name}. GitHub Actions veriyi işliyor, bekleniyor…`);
+      resetBtn.style.display = 'inline-block';
+      pollForUpdatedData(previousGeneratedAt, 15, 8000); // ~2 dakika, 8sn aralıklarla dene
+    }catch(err){
+      console.error(err);
+      setStatus('err', 'Push hatası: ' + err.message);
+      if(String(err.message).includes('401') || String(err.message).includes('403') || String(err.message).includes('yetkisiz')){
+        clearSessionToken();
+        updateForgetTokenBtnVisibility();
+      }
+    }
+  };
+  reader.onerror = ()=>{
+    setStatus('err', 'Hata: dosya okunamadı');
+  };
+  reader.readAsArrayBuffer(file);
+});
 </script>
 </body>
 </html>
