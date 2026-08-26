@@ -1,0 +1,74 @@
+{
+  "hedefCik": 94,
+  "uretilenKabin": 1713,
+  "uretilenMmc": 1612,
+  "devreyeAlinan": 6,
+  "ayKabin": 937,
+  "ayMmc": 722,
+  "stages": [
+    {
+      "label": "Keşif Bekleyen",
+      "cik": 2,
+      "kabin": 84,
+      "mmc": 86,
+      "note": "Saha keşif çalışmaları planlanmış olup erişim ve fizibilite onayları beklenmektedir."
+    },
+    {
+      "label": "Altyapı Planlanan",
+      "cik": 19,
+      "kabin": 523,
+      "mmc": 540,
+      "note": "Keşfi tamamlanan lokasyonlarda kablolama ve mimari hazırlık süreci başlatılmıştır."
+    },
+    {
+      "label": "Altyapı Devam Eden",
+      "cik": 0,
+      "kabin": 0,
+      "mmc": 0,
+      "note": "Şu an aktif olarak devam eden altyapı kazı/montaj çalışması bulunmamaktadır."
+    },
+    {
+      "label": "Altyapı Tamamlanan",
+      "cik": 31,
+      "kabin": 955,
+      "mmc": 985,
+      "note": "Fiziki altyapısı eksiksiz bitirilip kabin montajına hazır hale getirilen lokasyonlar."
+    },
+    {
+      "label": "Sevkiyat Yapılan",
+      "cik": 8,
+      "kabin": 261,
+      "mmc": 269,
+      "note": "Fabrika üretiminden çıkıp ilgili kurumlara nakliyesi gerçekleştirilen donanımlar."
+    },
+    {
+      "label": "Kurulumu Devam Eden",
+      "cik": 27,
+      "kabin": 950,
+      "mmc": 976,
+      "note": "Sahada montaj, kablolama ve ilk bağlantı testleri sürdürülen tesisler."
+    },
+    {
+      "label": "Kurulumu Tamamlanan",
+      "cik": 0,
+      "kabin": 0,
+      "mmc": 0,
+      "note": "Sahada montaj, kablolama, ilk bağlantı testleri tamamlanan tesisler."
+    },
+    {
+      "label": "Devreye Alınan",
+      "cik": 6,
+      "kabin": 138,
+      "mmc": 143,
+      "note": "Tüm kabul testleri başarıyla geçip canlı operasyona alınan nihai sistemler."
+    }
+  ],
+  "toplamRow": {
+    "cik": 93,
+    "kabin": 2911,
+    "mmc": 2999
+  },
+  "footnote": "*Bir kurum sevkiyat planında onunla beraber 94 kurum mevcut.",
+  "generatedAt": "2026-08-26T15:54:03.119667+00:00",
+  "sourceFile": "saha_durum_operasyon_tablosu.xlsx"
+}
