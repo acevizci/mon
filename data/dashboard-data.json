@@ -1,7 +1,7 @@
 {
   "hedefCik": 94,
-  "uretilenKabin": 1713,
-  "uretilenMmc": 1612,
+  "uretilenKabin": 1703,
+  "uretilenMmc": 1638,
   "devreyeAlinan": 7,
   "ayKabin": 937,
   "ayMmc": 722,
@@ -69,6 +69,6 @@
     "mmc": 3000
   },
   "footnote": "*Bir kurum sevkiyat planında onunla beraber 94 kurum mevcut.",
-  "generatedAt": "2026-08-28T13:34:21.646061+00:00",
+  "generatedAt": "2026-08-28T13:58:22.456854+00:00",
   "sourceFile": "saha_durum_operasyon_tablosu.xlsx"
 }
