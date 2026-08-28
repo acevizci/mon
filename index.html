@@ -194,7 +194,7 @@ function parseWorkbook(wb){
 
   // Blok 1: Toplam CİK Sayısı / Üretilen Toplam Kabin / Üretilen Toplam MMC
   const h1 = findRow(rows, s=>trLower(s).includes('toplam cik sayısı'));
-  let hedefCik=94, uretilenKabin=1713, uretilenMmc=1612;
+  let hedefCik=null, uretilenKabin=null, uretilenMmc=null;
   if(h1>=0){
     const v1 = nextNonEmptyRow(rows, h1);
     if(v1>=0){
@@ -203,10 +203,13 @@ function parseWorkbook(wb){
       uretilenMmc = toNum(rows[v1][2]);
     }
   }
+  if(hedefCik===null){
+    throw new Error('"Toplam CİK Sayısı" satırı bulunamadı — dosya formatı beklenenden farklı, veriler okunamadı.');
+  }
 
   // Blok 2: Devreye Alınan Kurum Sayısı / Ay içi Kabin / Ay içi MMC
   const h2 = findRow(rows, s=>trLower(s).includes('devreye alınan kurum sayısı'));
-  let devreyeAlinan=6, ayKabin=937, ayMmc=722;
+  let devreyeAlinan=null, ayKabin=null, ayMmc=null;
   if(h2>=0){
     const v2 = nextNonEmptyRow(rows, h2);
     if(v2>=0){
@@ -214,6 +217,9 @@ function parseWorkbook(wb){
       ayKabin = toNum(rows[v2][1]);
       ayMmc = toNum(rows[v2][2]);
     }
+  }
+  if(devreyeAlinan===null){
+    throw new Error('"Devreye Alınan Kurum Sayısı" satırı bulunamadı — dosya formatı beklenenden farklı, veriler okunamadı.');
   }
 
   // Blok 3: Aşama tablosu
