@@ -166,6 +166,12 @@ function toNum(v){
   return isNaN(n) ? 0 : n;
 }
 
+function trLower(s){
+  // Standart .toLowerCase() Türkçe İ/I harflerini yanlış çeviriyor
+  // (İ -> "i" + birleşik nokta işareti). Türkçe locale ile doğru küçültme yapar.
+  return String(s).toLocaleLowerCase('tr-TR');
+}
+
 function findRow(rows, matcher, fromIndex){
   fromIndex = fromIndex || 0;
   for(let i=fromIndex;i<rows.length;i++){
@@ -182,12 +188,12 @@ function nextNonEmptyRow(rows, fromIndex){
 }
 
 function parseWorkbook(wb){
-  const sheetName = wb.SheetNames.find(n=>n.trim().toLowerCase()==='saha durum') || wb.SheetNames[0];
+  const sheetName = wb.SheetNames.find(n=>trLower(n.trim())==='saha durum') || wb.SheetNames[0];
   const ws = wb.Sheets[sheetName];
   const rows = XLSX.utils.sheet_to_json(ws, {header:1, defval:null, raw:true});
 
   // Blok 1: Toplam CİK Sayısı / Üretilen Toplam Kabin / Üretilen Toplam MMC
-  const h1 = findRow(rows, s=>s.toLowerCase().includes('toplam cİk sayısı') || s.toLowerCase().includes('toplam cik sayısı'));
+  const h1 = findRow(rows, s=>trLower(s).includes('toplam cik sayısı'));
   let hedefCik=94, uretilenKabin=1713, uretilenMmc=1612;
   if(h1>=0){
     const v1 = nextNonEmptyRow(rows, h1);
@@ -199,7 +205,7 @@ function parseWorkbook(wb){
   }
 
   // Blok 2: Devreye Alınan Kurum Sayısı / Ay içi Kabin / Ay içi MMC
-  const h2 = findRow(rows, s=>s.toLowerCase().includes('devreye alınan kurum sayısı'));
+  const h2 = findRow(rows, s=>trLower(s).includes('devreye alınan kurum sayısı'));
   let devreyeAlinan=6, ayKabin=937, ayMmc=722;
   if(h2>=0){
     const v2 = nextNonEmptyRow(rows, h2);
@@ -211,7 +217,7 @@ function parseWorkbook(wb){
   }
 
   // Blok 3: Aşama tablosu
-  const hTable = findRow(rows, s=>s.toLowerCase().includes('aşama') && s.toLowerCase().includes('durum'));
+  const hTable = findRow(rows, s=>trLower(s).includes('aşama') && trLower(s).includes('durum'));
   const stages = [];
   let toplamRow = null;
   let footnote = '';
@@ -220,7 +226,7 @@ function parseWorkbook(wb){
       const row = rows[i];
       if(!row || row[0]===null || row[0]===undefined || String(row[0]).trim()==='') continue;
       const label = String(row[0]).trim();
-      if(label.toLowerCase()==='toplam'){
+      if(trLower(label)==='toplam'){
         toplamRow = {cik:toNum(row[1]), kabin:toNum(row[2]), mmc:toNum(row[3])};
         continue;
       }
