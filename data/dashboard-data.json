@@ -2,7 +2,7 @@
   "hedefCik": 94,
   "uretilenKabin": 1713,
   "uretilenMmc": 1612,
-  "devreyeAlinan": 6,
+  "devreyeAlinan": 7,
   "ayKabin": 937,
   "ayMmc": 722,
   "stages": [
@@ -15,9 +15,9 @@
     },
     {
       "label": "Altyapı Planlanan",
-      "cik": 19,
-      "kabin": 523,
-      "mmc": 540,
+      "cik": 15,
+      "kabin": 459,
+      "mmc": 474,
       "note": "Keşfi tamamlanan lokasyonlarda kablolama ve mimari hazırlık süreci başlatılmıştır."
     },
     {
@@ -29,23 +29,23 @@
     },
     {
       "label": "Altyapı Tamamlanan",
-      "cik": 31,
-      "kabin": 955,
-      "mmc": 985,
+      "cik": 25,
+      "kabin": 803,
+      "mmc": 827,
       "note": "Fiziki altyapısı eksiksiz bitirilip kabin montajına hazır hale getirilen lokasyonlar."
     },
     {
       "label": "Sevkiyat Yapılan",
-      "cik": 8,
-      "kabin": 261,
-      "mmc": 269,
+      "cik": 17,
+      "kabin": 397,
+      "mmc": 412,
       "note": "Fabrika üretiminden çıkıp ilgili kurumlara nakliyesi gerçekleştirilen donanımlar."
     },
     {
       "label": "Kurulumu Devam Eden",
-      "cik": 27,
-      "kabin": 950,
-      "mmc": 976,
+      "cik": 28,
+      "kabin": 974,
+      "mmc": 1001,
       "note": "Sahada montaj, kablolama ve ilk bağlantı testleri sürdürülen tesisler."
     },
     {
@@ -57,18 +57,18 @@
     },
     {
       "label": "Devreye Alınan",
-      "cik": 6,
-      "kabin": 138,
-      "mmc": 143,
+      "cik": 7,
+      "kabin": 194,
+      "mmc": 200,
       "note": "Tüm kabul testleri başarıyla geçip canlı operasyona alınan nihai sistemler."
     }
   ],
   "toplamRow": {
-    "cik": 93,
+    "cik": 94,
     "kabin": 2911,
-    "mmc": 2999
+    "mmc": 3000
   },
   "footnote": "*Bir kurum sevkiyat planında onunla beraber 94 kurum mevcut.",
-  "generatedAt": "2026-08-26T16:34:29.075400+00:00",
+  "generatedAt": "2026-08-28T13:34:21.646061+00:00",
   "sourceFile": "saha_durum_operasyon_tablosu.xlsx"
 }
