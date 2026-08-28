@@ -39,6 +39,18 @@ STAGE_ORDER = [
 ]
 
 
+_TR_LOWER_MAP = str.maketrans({"İ": "i", "I": "ı"})
+
+
+def tr_lower(s: str) -> str:
+    """Python'un locale-bağımsız str.lower() metodu Türkçe İ harfini
+    yanlış çevirir (İ -> 'i' + birleşik nokta işareti, U+0307).
+    locale.setlocale() bu davranışı değiştirmez çünkü str.lower()
+    locale'e duyarlı değildir. Bu yüzden İ/I harflerini önce elle
+    normalize edip sonra lower() çağırıyoruz."""
+    return s.translate(_TR_LOWER_MAP).lower()
+
+
 def to_num(value):
     if value is None:
         return 0
@@ -90,8 +102,8 @@ def parse_workbook(path: Path) -> dict:
         rows.append(list(row))
 
     # Blok 1: Toplam CİK Sayısı / Üretilen Toplam Kabin / Üretilen Toplam MMC
-    h1 = find_row(rows, lambda s: "toplam cİk sayısı" in s.lower() or "toplam cik sayısı" in s.lower())
-    hedef_cik, uretilen_kabin, uretilen_mmc = 94, 1713, 1612
+    h1 = find_row(rows, lambda s: "toplam cik sayısı" in tr_lower(s))
+    hedef_cik = uretilen_kabin = uretilen_mmc = None
     if h1 >= 0:
         v1 = next_non_empty_row(rows, h1)
         if v1 >= 0:
@@ -99,10 +111,14 @@ def parse_workbook(path: Path) -> dict:
             hedef_cik = to_num(r[0] if len(r) > 0 else None)
             uretilen_kabin = to_num(r[1] if len(r) > 1 else None)
             uretilen_mmc = to_num(r[2] if len(r) > 2 else None)
+    if hedef_cik is None:
+        raise ValueError(
+            '"Toplam CİK Sayısı" satırı bulunamadı — dosya formatı beklenenden farklı, veriler okunamadı.'
+        )
 
     # Blok 2: Devreye Alınan Kurum Sayısı / Ay içi Kabin / Ay içi MMC
-    h2 = find_row(rows, lambda s: "devreye alınan kurum sayısı" in s.lower())
-    devreye_alinan, ay_kabin, ay_mmc = 6, 937, 722
+    h2 = find_row(rows, lambda s: "devreye alınan kurum sayısı" in tr_lower(s))
+    devreye_alinan = ay_kabin = ay_mmc = None
     if h2 >= 0:
         v2 = next_non_empty_row(rows, h2)
         if v2 >= 0:
@@ -110,9 +126,13 @@ def parse_workbook(path: Path) -> dict:
             devreye_alinan = to_num(r[0] if len(r) > 0 else None)
             ay_kabin = to_num(r[1] if len(r) > 1 else None)
             ay_mmc = to_num(r[2] if len(r) > 2 else None)
+    if devreye_alinan is None:
+        raise ValueError(
+            '"Devreye Alınan Kurum Sayısı" satırı bulunamadı — dosya formatı beklenenden farklı, veriler okunamadı.'
+        )
 
     # Blok 3: Aşama tablosu
-    h_table = find_row(rows, lambda s: "aşama" in s.lower() and "durum" in s.lower())
+    h_table = find_row(rows, lambda s: "aşama" in tr_lower(s) and "durum" in tr_lower(s))
     stages = []
     toplam_row = None
     footnote = ""
@@ -122,7 +142,7 @@ def parse_workbook(path: Path) -> dict:
             label = cell_text(row[0] if len(row) > 0 else None)
             if label == "":
                 continue
-            if label.lower() == "toplam":
+            if tr_lower(label) == "toplam":
                 toplam_row = {
                     "cik": to_num(row[1] if len(row) > 1 else None),
                     "kabin": to_num(row[2] if len(row) > 2 else None),
