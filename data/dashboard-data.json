@@ -1,10 +1,10 @@
 {
   "hedefCik": 94,
-  "uretilenKabin": 1703,
-  "uretilenMmc": 1638,
-  "devreyeAlinan": 7,
-  "ayKabin": 937,
-  "ayMmc": 722,
+  "uretilenKabin": 2003,
+  "uretilenMmc": 1918,
+  "devreyeAlinan": 12,
+  "ayKabin": 300,
+  "ayMmc": 280,
   "stages": [
     {
       "label": "Keşif Bekleyen",
@@ -15,9 +15,9 @@
     },
     {
       "label": "Altyapı Planlanan",
-      "cik": 15,
-      "kabin": 459,
-      "mmc": 474,
+      "cik": 14,
+      "kabin": 410,
+      "mmc": 424,
       "note": "Keşfi tamamlanan lokasyonlarda kablolama ve mimari hazırlık süreci başlatılmıştır."
     },
     {
@@ -30,36 +30,36 @@
     {
       "label": "Altyapı Tamamlanan",
       "cik": 25,
-      "kabin": 803,
-      "mmc": 827,
+      "kabin": 818,
+      "mmc": 842,
       "note": "Fiziki altyapısı eksiksiz bitirilip kabin montajına hazır hale getirilen lokasyonlar."
     },
     {
       "label": "Sevkiyat Yapılan",
-      "cik": 17,
-      "kabin": 397,
-      "mmc": 412,
+      "cik": 15,
+      "kabin": 430,
+      "mmc": 444,
       "note": "Fabrika üretiminden çıkıp ilgili kurumlara nakliyesi gerçekleştirilen donanımlar."
     },
     {
       "label": "Kurulumu Devam Eden",
-      "cik": 28,
-      "kabin": 974,
-      "mmc": 1001,
+      "cik": 25,
+      "kabin": 870,
+      "mmc": 895,
       "note": "Sahada montaj, kablolama ve ilk bağlantı testleri sürdürülen tesisler."
     },
     {
       "label": "Kurulumu Tamamlanan",
-      "cik": 0,
-      "kabin": 0,
-      "mmc": 0,
+      "cik": 1,
+      "kabin": 75,
+      "mmc": 76,
       "note": "Sahada montaj, kablolama, ilk bağlantı testleri tamamlanan tesisler."
     },
     {
       "label": "Devreye Alınan",
-      "cik": 7,
-      "kabin": 194,
-      "mmc": 200,
+      "cik": 12,
+      "kabin": 224,
+      "mmc": 233,
       "note": "Tüm kabul testleri başarıyla geçip canlı operasyona alınan nihai sistemler."
     }
   ],
@@ -69,6 +69,6 @@
     "mmc": 3000
   },
   "footnote": "*Bir kurum sevkiyat planında onunla beraber 94 kurum mevcut.",
-  "generatedAt": "2026-08-28T14:26:54.899687+00:00",
+  "generatedAt": "2026-09-04T13:05:05.711901+00:00",
   "sourceFile": "saha_durum_operasyon_tablosu.xlsx"
 }
